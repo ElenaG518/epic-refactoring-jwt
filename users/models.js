@@ -23,7 +23,6 @@ const UserSchema = mongoose.Schema({
 // RETURN USER ITEM BUT DO NOT INCLUDE PASSWORD
 UserSchema.methods.serialize = function() {
     return {
-        id: this._id,
         username: this.username || '',
         firstName: this.firstName || '',
         lastName: this.lastName || ''

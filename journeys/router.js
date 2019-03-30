@@ -1,10 +1,12 @@
 'use strict';
 const express = require('express');
-const bodyParser = require('body-parser');
+const passport = require('passport');
 const { Journey, Image } = require('./models');
 const router = express.Router();
-const jsonParser = bodyParser.json();
-
+const { jwtStrategy } = require('../auth');
+passport.use(jwtStrategy);
+const jwtAuth = passport.authenticate('jwt', {session: false});
+router.use(jwtAuth);
 // response for API call to get all journeys for user
 router.get('/:username', (req, res) => {
     console.log('looking by username');
@@ -56,7 +58,7 @@ router.get('/edit/:id', (req, res) => {
 });
 
 // response for API call to create a journey with information provided by user
-router.post('/create', jsonParser, (req, res) => {
+router.post('/', (req, res) => {
     console.log(req.body.title, req.body.location, req.body.startDates, req.body.endDates, req.body.description, req.body.album);
     const requiredFields = ['title', 'location', 'startDates', 'endDates', 'description', 'loggedInUserName', 'album'];
     // ensure we have values for all required fields, otherwise send an error
@@ -89,7 +91,7 @@ router.post('/create', jsonParser, (req, res) => {
 });
 
 // response to handle user request to edit journey
-router.put('/update/:id', jsonParser, function(req, res) {
+router.put('/update/:id',function(req, res) {
     console.log("call to put");
     console.log(req.params.id);
     console.log(req.body.id);
@@ -161,7 +163,7 @@ router.get('/images/single/:journeyId', (req, res) => {
 });
 
 // response for API call to create image for journey
-router.post('/add-img', jsonParser, (req, res) => {
+router.post('/add-img', (req, res) => {
     console.log(req.body.imgAddress, req.body.username, req.body.journeyId, req.body.journeyTitle);
     // ensure we have all the required fields
     const requiredFields = ['imgAddress', 'username', 'journeyId', 'journeyTitle'];
@@ -191,7 +193,7 @@ router.post('/add-img', jsonParser, (req, res) => {
 });
 
 // response to handle user request to edit journey
-router.put('/update-img/:journeyId', jsonParser, function(req, res) {
+router.put('/update-img/:journeyId', function(req, res) {
     console.log("call to put for image");
     console.log(req.params.journeyId);
     console.log(req.body.journeyId);
@@ -218,4 +220,4 @@ router.put('/update-img/:journeyId', jsonParser, function(req, res) {
         .catch(err => res.status(500).json({ message: 'couldn\'t update image(s)' }));
 });
 
-module.exports = router;
+module.exports = {router};

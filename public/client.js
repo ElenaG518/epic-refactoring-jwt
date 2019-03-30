@@ -116,17 +116,17 @@ $('.signup-form').submit(function(event) {
     else {
         //create the payload object (what data we send to the api call)
         const newUserObject = {
-            firstName: firstName,
-            lastName: lastName,
-            username: username,
-            password: password
+            firstName,
+            lastName,
+            username,
+            password
         };
         console.log(newUserObject);
 
         //make the api call using the payload above
         $.ajax({
                 type: 'POST',
-                url: '/users/create',
+                url: '/api/users',
                 dataType: 'json',
                 data: JSON.stringify(newUserObject),
                 contentType: 'application/json'
@@ -165,14 +165,14 @@ function login(username, password) {
     } else {
         //create the payload object (what data we send to the api call)
         const userObject = {
-            username: username,
-            password: password
+            username,
+            password
         };
         console.log(userObject);
         //make the api call using the payload above
         $.ajax({
                 type: 'POST',
-                url: '/users/login',
+                url: '/api/auth/login',
                 dataType: 'json',
                 data: JSON.stringify(userObject),
                 contentType: 'application/json'
@@ -213,24 +213,24 @@ $('.journey-form').submit(function(event) {
     const startDates = $('#datepicker-start').val();
     const endDates = $('#datepicker-end').val();
     const description = $('#description').val();
-    const username = $('#loggedInUserName').val();
+    const loggedInUserName = $('#loggedInUserName').val();
     const album = $('#url').val();
     console.log("url ", album);
     //create the payload object (what data we send to the api call)
     const journalObject = {
-        title: title,
-        location: location,
-        startDates: startDates,
-        endDates: endDates,
-        description: description,
-        loggedInUserName: username, 
-        album: album
+        title,
+        location,
+        startDates,
+        endDates,
+        description,
+        loggedInUserName, 
+        album
     };
     console.log(journalObject);
     //make the api call using the payload above
     $.ajax({
             type: 'POST',
-            url: '/journeys/create',
+            url: '/journeys',
             dataType: 'json',
             data: JSON.stringify(journalObject),
             contentType: 'application/json'
@@ -439,13 +439,13 @@ function callCloudinary(username, id, title) {
 };
 
 // add pictures for journeys to the database
-function addPhotos(img_url, username, journey_id, journey_title) {
+function addPhotos(imgAddress, username, journeyId, journeyTitle) {
     console.log("Add photos funct", img_url, username, journey_id);
     const imgObject = {
-        imgAddress: img_url,
-        username: username,
-        journeyId: journey_id,
-        journeyTitle: journey_title
+        imgAddress,
+        username,
+        journeyId,
+        journeyTitle
     };
     console.log(imgObject);
     //make the api call using the payload above
@@ -458,7 +458,7 @@ function addPhotos(img_url, username, journey_id, journey_title) {
         })
         .done(function(result) {
             console.log(result);
-            getJourneyById(journey_id, displayJourney);
+            getJourneyById(result.journeyId, displayJourney);
         })
         // if the call is failing
         .fail(function(jqXHR, error, errorThrown) {
@@ -506,6 +506,7 @@ function displayAllImages(imgArray) {
 
 function updateImageTitleId(journeyObjToUpdate) {
     console.log("updateImageTitleId", journeyObjToUpdate);
+    
     const editImageTitle = {
         journeyId: journeyObjToUpdate.id,
         journeyTitle: journeyObjToUpdate.title
@@ -520,12 +521,12 @@ function updateImageTitleId(journeyObjToUpdate) {
             contentType: 'application/json'
         })
         // if the call is successful
-        .done(function(result) {
+        .done(function() {
             $('.journal-entry').empty();
             const username = $('#loggedInUserName').val();
             console.log(username);
 
-            getJourneyById(journey_id, displayJourney);
+            getJourneyById(journeyObjToUpdate.id, displayJourney);
             // getListOfJourneys(username);
         })
         // if the call is failing
@@ -558,7 +559,7 @@ function editJourney(id) {
     console.log(id);
     $.ajax({
             type: 'GET',
-            url: `/journeys/edit/${id}`,
+            url: `/journeys/id/${id}`,
             dataType: 'json',
             contentType: 'application/json'
         })
@@ -612,18 +613,18 @@ $('.edit-journey').on('submit', '.edit-form', function(event) {
     const startDates = $('.edit-start-dates').val();
     const endDates = $('.edit-end-dates').val();
     const description = $('#edit-description').val();
-    const username = $('#loggedInUserName').val();
+    const loggedInUserName = $('#loggedInUserName').val();
    
 
     // create paylode object
     const editJournalObject = {
-        title: title,
-        location: location,
-        startDates: startDates,
-        endDates: endDates,
-        description: description,
-        loggedInUserName: username,
-        id: id
+        title,
+        location,
+        startDates,
+        endDates,
+        description,
+        loggedInUserName,
+        id
     };
     console.log(editJournalObject);
     //make the api call using the payload above
@@ -635,7 +636,7 @@ $('.edit-journey').on('submit', '.edit-form', function(event) {
             contentType: 'application/json'
         })
         // if the call is successful
-        .done(function(result) {
+        .done(function() {
             $('.journal-entry').empty();
             const username = $('#loggedInUserName').val();
             console.log(username);
@@ -689,7 +690,7 @@ function deleteJourney(id) {
             contentType: 'application/json'
         })
         // if the call is successful
-        .done(function(message) {
+        .done(function() {
             const username = $('#loggedInUserName').val();
             console.log(username);
             $('.cards').empty();
@@ -713,7 +714,7 @@ $('.get-users').click(event => {
     console.log("getlistofusers function ran");
     $.ajax({
             type: 'GET',
-            url: '/users',
+            url: '/api/users',
             dataType: 'json',
             contentType: 'application/json'
         })
